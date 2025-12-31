@@ -45,21 +45,27 @@ func parseSessionEnv(envValue string) (int, []SessionInfo) {
 	if envValue == "" {
 		return 0, []SessionInfo{}
 	}
+	// 清理整串环境变量两端的空白字符（空格、换行、制表符等）
+	envValue = strings.TrimSpace(envValue)
 	var sessions []SessionInfo
 	sessionPairs := strings.Split(envValue, ",")
 	retryCount := len(sessionPairs) // 重试次数等于 session 数量
 	for _, pair := range sessionPairs {
+		// 去掉每个 pair 两端的空白，避免因配置多写空格/回车导致解析异常
+		pair = strings.TrimSpace(pair)
 		if pair == "" {
 			retryCount--
 			continue
 		}
 		parts := strings.Split(pair, ":")
 		session := SessionInfo{
-			SessionKey: parts[0],
+			// 去掉 sessionKey 左右空白
+			SessionKey: strings.TrimSpace(parts[0]),
 		}
 
 		if len(parts) > 1 {
-			session.OrgID = parts[1]
+			// 去掉 orgID 左右空白
+			session.OrgID = strings.TrimSpace(parts[1])
 		} else if len(parts) == 1 {
 			session.OrgID = ""
 		}
